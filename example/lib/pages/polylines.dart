@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:google_navigation_flutter/google_navigation_flutter.dart';
 import '../widgets/widgets.dart';
 
+
 class PolylinesPage extends ExamplePage {
   const PolylinesPage({super.key})
       : super(leading: const Icon(Icons.polyline), title: 'Polylines');
@@ -62,7 +63,7 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
   Future<void> _addPolyline() async {
     // Add triangle made out of polylines on the current camera position.
     final LatLngBounds cameraBounds =
-        await _navigationViewController.getVisibleRegion();
+    await _navigationViewController.getVisibleRegion();
 
     // Use the latitudeSpan and longitudeSpan properties of LatLngBounds
     final List<LatLng> points = _createInsetTriangle(cameraBounds, 0.2);
@@ -143,7 +144,7 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
   Future<void> _setStrokeColor() async {
     final Color oldColor = _selectedPolyline!.options.strokeColor!;
     final Color newColor = _colors.elementAtOrNull(
-            _colors.indexWhere((Color e) => e.value == oldColor.value) + 1) ??
+        _colors.indexWhere((Color e) => e.value == oldColor.value) + 1) ??
         _colors[0];
 
     await _updateSelectedPolylineWithOptions(
@@ -180,7 +181,7 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
   Future<void> _setStrokeWidth() async {
     final double oldStrokeWidth = _selectedPolyline!.options.strokeWidth!;
     final double newStrokeWidth = _strokeWidths.elementAtOrNull(
-            _strokeWidths.indexWhere((double e) => e == oldStrokeWidth) + 1) ??
+        _strokeWidths.indexWhere((double e) => e == oldStrokeWidth) + 1) ??
         _strokeWidths[0];
 
     await _updateSelectedPolylineWithOptions(
@@ -197,7 +198,7 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
   Future<void> _setZIndex() async {
     final double oldZIndex = _selectedPolyline!.options.zIndex!;
     final double newZIndex = _zIndexes.elementAtOrNull(
-            _zIndexes.indexWhere((double e) => e == oldZIndex) + 1) ??
+        _zIndexes.indexWhere((double e) => e == oldZIndex) + 1) ??
         _zIndexes[0];
 
     await _updateSelectedPolylineWithOptions(
@@ -207,32 +208,32 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
   @override
   Widget build(BuildContext context) => buildPage(
       context,
-      (BuildContext context) => Padding(
-            padding: EdgeInsets.zero,
-            child: Column(children: <Widget>[
-              Expanded(
-                  child: GoogleMapsNavigationView(
+          (BuildContext context) => Padding(
+        padding: EdgeInsets.zero,
+        child: Column(children: <Widget>[
+          Expanded(
+              child: GoogleMapsNavigationView(
                 initialCameraPosition: const CameraPosition(
                     target: LatLng(latitude: 37.422, longitude: -122.084),
                     zoom: 12),
                 initialNavigationUIEnabledPreference:
-                    NavigationUIEnabledPreference.disabled,
+                NavigationUIEnabledPreference.disabled,
                 onViewCreated: _onViewCreated,
                 onPolylineClicked: _onPolylineClicked,
               )),
-              const SizedBox(height: 10),
-              Text(
-                _polylines.isEmpty
-                    ? 'No polylines added. Move camera to place polyline.'
-                    : _selectedPolyline == null
-                        ? 'Click to select polyline'
-                        : 'Selected polyline ${_selectedPolyline!.polylineId}',
-                style: const TextStyle(fontSize: 15),
-                textAlign: TextAlign.center,
-              ),
-              bottomControls
-            ]),
-          ));
+          const SizedBox(height: 10),
+          Text(
+            _polylines.isEmpty
+                ? 'No polylines added. Move camera to place polyline.'
+                : _selectedPolyline == null
+                ? 'Click to select polyline'
+                : 'Selected polyline ${_selectedPolyline!.polylineId}',
+            style: const TextStyle(fontSize: 15),
+            textAlign: TextAlign.center,
+          ),
+          bottomControls
+        ]),
+      ));
 
   Widget get bottomControls {
     return Padding(
@@ -249,23 +250,23 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
               ),
               ElevatedButton(
                 onPressed:
-                    _selectedPolyline == null ? null : () => _removePolyline(),
+                _selectedPolyline == null ? null : () => _removePolyline(),
                 child: const Text('Remove polyline'),
               ),
               ElevatedButton(
                 onPressed:
-                    _selectedPolyline == null ? null : () => _toggleGeodesic(),
+                _selectedPolyline == null ? null : () => _toggleGeodesic(),
                 child: Text('Geodesic: ${_selectedPolyline?.options.geodesic}'),
               ),
               ElevatedButton(
                 onPressed:
-                    _selectedPolyline == null ? null : () => _setStrokeColor(),
+                _selectedPolyline == null ? null : () => _setStrokeColor(),
                 child: Text(
                     'Stroke color: ${_colorName(_selectedPolyline?.options.strokeColor)}'),
               ),
               ElevatedButton(
                 onPressed:
-                    _selectedPolyline == null ? null : () => _setStrokeWidth(),
+                _selectedPolyline == null ? null : () => _setStrokeWidth(),
                 child: Text(
                     'Stroke width: ${_selectedPolyline?.options.strokeWidth}'),
               ),
@@ -281,22 +282,22 @@ class _PolylinesPageState extends ExamplePageState<PolylinesPage> {
                     ? null
                     : () => _toggleVisibility(),
                 child:
-                    Text('Visibility: ${_selectedPolyline?.options.visible}'),
+                Text('Visibility: ${_selectedPolyline?.options.visible}'),
               ),
               ElevatedButton(
                 onPressed:
-                    _selectedPolyline == null ? null : () => _setZIndex(),
+                _selectedPolyline == null ? null : () => _setZIndex(),
                 child: Text('Z-index: ${_selectedPolyline?.options.zIndex}'),
               ),
               ElevatedButton(
                 onPressed: _polylines.isNotEmpty
                     ? () {
-                        setState(() {
-                          _navigationViewController.clearPolylines();
-                          _polylines.clear();
-                          _selectedPolyline = null;
-                        });
-                      }
+                  setState(() {
+                    _navigationViewController.clearPolylines();
+                    _polylines.clear();
+                    _selectedPolyline = null;
+                  });
+                }
                     : null,
                 child: const Text('Clear all'),
               ),
