@@ -28,10 +28,6 @@ class _NavigationPageState extends State<NavigationPage> {
   bool _guidanceRunning = false;
   NavigationTravelMode _travelMode = NavigationTravelMode.driving; // Default mode
 
-  // Progress Bar State Variables
-  int _remainingTime = 0; // in seconds
-  int _remainingDistance = 0; // in meters
-
   final List<NavigationWaypoint> predefinedWaypoints = [
     NavigationWaypoint.withLatLngTarget(
         title: "Start",
@@ -63,13 +59,6 @@ class _NavigationPageState extends State<NavigationPage> {
     await GoogleMapsNavigator.initializeNavigationSession();
     setState(() => _navigatorInitialized = true);
     await _setPredefinedRoute();
-
-    // Listen for remaining time/distance updates
-    GoogleMapsNavigator.setOnRemainingTimeOrDistanceChangedListener(
-      _onRemainingTimeOrDistanceChangedEvent,
-      remainingTimeThresholdSeconds: 60,
-      remainingDistanceThresholdMeters: 100,
-    );
   }
 
   Future<void> _setPredefinedRoute() async {
@@ -77,11 +66,7 @@ class _NavigationPageState extends State<NavigationPage> {
 
     final Destinations destinations = Destinations(
       waypoints: predefinedWaypoints,
-      displayOptions: NavigationDisplayOptions(
-        showDestinationMarkers: true,
-        showStopSigns: true,
-        showTrafficLights: true,
-      ),
+      displayOptions: NavigationDisplayOptions(showDestinationMarkers: true),
       routingOptions: RoutingOptions(travelMode: _travelMode),
     );
 
@@ -100,12 +85,7 @@ class _NavigationPageState extends State<NavigationPage> {
     await _navigationViewController?.setNavigationUIEnabled(true);
     await _navigationViewController?.followMyLocation(CameraPerspective.tilted);
 
-    // Enable progress bar
-    await _navigationViewController?.setNavigationTripProgressBarEnabled(true);
-
-    setState(() {
-      _guidanceRunning = true;
-    });
+    setState(() => _guidanceRunning = true);
   }
 
   void _handleNavigationError(NavigationRouteStatus status) {
@@ -129,48 +109,33 @@ class _NavigationPageState extends State<NavigationPage> {
     await _setPredefinedRoute(); // Recalculate the route with the selected mode
   }
 
-  // Remaining Time/Distance Listener
-  void _onRemainingTimeOrDistanceChangedEvent(RemainingTimeOrDistanceChangedEvent event) {
-    if (!mounted) return;
-    setState(() {
-      _remainingDistance = event.remainingDistance.toInt();
-      _remainingTime = event.remainingTime.toInt();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              // Travel mode selection
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: _travelModeSelection(),
-                ),
-              ),
-              Expanded(
-                child: _navigatorInitialized
-                    ? GoogleMapsNavigationView(
-                  onViewCreated: (controller) {
-                    _navigationViewController = controller;
-                  },
-                  initialCameraPosition: CameraPosition(
-                    target: predefinedWaypoints.first.target ??
-                        const LatLng(latitude: 18.457323, longitude: 73.8508694),
-                    zoom: 15,
-                  ),
-                  initialNavigationUIEnabledPreference: NavigationUIEnabledPreference.automatic,
-                )
-                    : const Center(child: CircularProgressIndicator()),
-              ),
-            ],
+          // Placing the travel mode selection where the AppBar was
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0), // Adds spacing below the status bar
+              child: _travelModeSelection(),
+            ),
           ),
-          // Navigation Progress Bar
-          if (_guidanceRunning) _buildNavigationProgressBar(),
+          Expanded(
+            child: _navigatorInitialized
+                ? GoogleMapsNavigationView(
+              onViewCreated: (controller) {
+                _navigationViewController = controller;
+              },
+              initialCameraPosition: CameraPosition(
+                target: predefinedWaypoints.first.target ??
+                    const LatLng(latitude: 18.457323, longitude: 73.8508694),
+                zoom: 15,
+              ),
+              initialNavigationUIEnabledPreference: NavigationUIEnabledPreference.automatic,
+            )
+                : const Center(child: CircularProgressIndicator()),
+          ),
         ],
       ),
     );
@@ -198,41 +163,20 @@ class _NavigationPageState extends State<NavigationPage> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(5),
-            child: Icon(
-              icon,
-              size: 30,
-              color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
-            ),
-          ),
+              padding: const EdgeInsets.all(5),
+              child: Icon(
+                icon,
+                size: 30,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
+              )),
           if (isSelected)
             Container(
               height: 3,
               color: Theme.of(context).colorScheme.primary,
               width: 40,
             ),
-        ],
-      ),
-    );
-  }
-
-  /// *Navigation Progress Bar*
-  Widget _buildNavigationProgressBar() {
-    return Positioned(
-      bottom: 20,
-      left: 20,
-      right: 20,
-      child: Column(
-        children: [
-          Text(
-            'Remaining Time: ${Duration(seconds: _remainingTime).inMinutes} min',
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-          LinearProgressIndicator(
-            value: _remainingDistance > 0 ? 1.0 - (_remainingDistance / 5000.0) : 1.0,
-            backgroundColor: Colors.grey[700],
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-          ),
         ],
       ),
     );
