@@ -67,7 +67,7 @@ class _GuardianSetupPageState extends State<GuardianSetupPage> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Image.asset(
-                          'assets/safeyatralog.png',
+                          'assets/safeyatraofficiallogo.png',
                           width: 80, // Adjust width as needed
                           height: 80, // Adjust height as needed
                         ),

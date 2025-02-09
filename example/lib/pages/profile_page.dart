@@ -130,7 +130,7 @@ class ProfilePage extends StatelessWidget {
                     const CircleAvatar(
                       radius: 50,
                       backgroundImage: AssetImage(
-                          'lib/assets/snoweyy.jpeg'), // Replace with actual image path
+                          'assets/safeyatralog.png'), // Replace with actual image path
                     ),
                     const SizedBox(height: 20),
                     const Text(
@@ -219,6 +219,11 @@ class ProfilePage extends StatelessWidget {
                     const SizedBox(height: 30),
                     Center(
                       child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white, // Change this color as needed
+                          foregroundColor: Colors.white, // This will make the text and icon white
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
                         onPressed: () {
                           // Handle the complete profile setup
                           print("Profile completed with details:");
@@ -286,7 +291,7 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.8,
+        width: MediaQuery.sizeOf(context).width * 0.8 +2,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),

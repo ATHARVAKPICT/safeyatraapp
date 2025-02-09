@@ -47,7 +47,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
   late bool isMyLocationEnabled = true;
   late bool isMyLocationButtonEnabled = true;
   late bool consumeMyLocationButtonClickEvent = false;
-  late bool isZoomGesturesEnabled = true;
+  late bool isZoomGesturesEnabled = false;
   late bool isZoomControlsEnabled = true;
   late bool isCompassEnabled = true;
   late bool isRotateGesturesEnabled = true;
@@ -230,6 +230,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
 
   Future<void> _onViewCreated(GoogleMapViewController controller) async {
     _mapViewController = controller;
+    await _mapViewController.settings.setZoomControlsEnabled(false);
     setState(() {});
   }
 
@@ -251,8 +252,11 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
   Widget _buildLocationInputs() {
     return Container(
       padding: const EdgeInsets.all(16),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height, // Limit to 40% of screen height
+      ),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Color.fromRGBO(33,53,85,1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -264,6 +268,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SizedBox(height: 50),
           TextField(
             controller: _sourceController,
             onChanged: (value) => fetchSuggestions(value, true),
@@ -274,7 +279,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               filled: true,
-              fillColor: Theme.of(context).scaffoldBackgroundColor,
+              fillColor: Colors.transparent,
             ),
           ),
           if (_sourceSuggestions.isNotEmpty)
@@ -300,7 +305,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               filled: true,
-              fillColor: Theme.of(context).scaffoldBackgroundColor,
+              fillColor: Colors.transparent,
             ),
           ),
           if (_destinationSuggestions.isNotEmpty)
@@ -337,10 +342,16 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           ),
           _buildLocationInputs(),
           Padding(
-            padding: const EdgeInsets.only(top: 150, left: 200, right: 10),
+            padding: const EdgeInsets.only(top: 200, left: 16, right: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // changed to blue background
+                    foregroundColor: Colors.white, // changed to white text
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   onPressed: () {
                     _mapViewController.clearPolylines();
                     _addPolyline(3);
@@ -357,8 +368,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.transparent,
                     ),
                     child: Column(
                       children: [
@@ -376,11 +386,25 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           ),
           // getOverlayOptionsButton(context, onPressed: () => toggleOverlay()),
           // Add DockingBar at the bottom
-          const Positioned(
+          // const Positioned(
+          //   left: 4,
+          //   right: 4,
+          //   bottom: 50,
+          //   child: DockingBar(),
+          // ),
+          Positioned(
             left: 4,
             right: 4,
-            bottom: 50,
-            child: DockingBar(),
+            bottom: 40,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Container(
+                  width: constraints.maxWidth,
+                  alignment: Alignment.bottomLeft,
+                  child: const DockingBar(),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -506,19 +530,19 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           },
           title: const Text('Enable zoom gestures'),
           value: isZoomGesturesEnabled),
-      if (Platform.isAndroid)
-        SwitchListTile(
-            onChanged: (bool newValue) async {
-              await _mapViewController.settings
-                  .setZoomControlsEnabled(newValue);
-              final bool enabled =
-              await _mapViewController.settings.isZoomControlsEnabled();
-              setState(() {
-                isZoomControlsEnabled = enabled;
-              });
-            },
-            title: const Text('Enable zoom controls'),
-            value: isZoomControlsEnabled),
+      // if (Platform.isAndroid)
+      //   SwitchListTile(
+      //       onChanged: (bool newValue) async {
+      //         await _mapViewController.settings
+      //             .setZoomControlsEnabled(newValue);
+      //         final bool enabled =
+      //         await _mapViewController.settings.isZoomControlsEnabled();
+      //         setState(() {
+      //           isZoomControlsEnabled = enabled;
+      //         });
+      //       },
+      //       title: const Text('Enable zoom controls'),
+      //       value: isZoomControlsEnabled),
       SwitchListTile(
           onChanged: (bool newValue) async {
             await _mapViewController.settings
@@ -616,8 +640,8 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.8,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        width: MediaQuery.sizeOf(context).width * 0.75 + 16,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(15),

@@ -72,6 +72,7 @@ class NavigationApp extends StatelessWidget {
         ),
         '/profile': (context) => const ProfilePage(),
         '/upload_report': (context) => const UploadReportPage(),
+        '/community': (context) => const CommunityPage(),
       },
     );
   }

@@ -111,6 +111,11 @@ class _UploadReportPageState extends State<UploadReportPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700], // Change this color as needed
+                      foregroundColor: Colors.white, // This will make the text and icon white
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
                     onPressed: _uploadImage,
                     icon: const Icon(Icons.image,
                         color: Colors.black), // Icon color changed to black
@@ -156,6 +161,11 @@ class _UploadReportPageState extends State<UploadReportPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[700], // Change this color as needed
+                      foregroundColor: Colors.white, // This will make the text and icon white
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
                     onPressed: _postReport,
                     child: const Text('Post Report',
                         style: TextStyle(
@@ -214,7 +224,7 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.8,
+        width: MediaQuery.sizeOf(context).width * 0.8 +2,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),
