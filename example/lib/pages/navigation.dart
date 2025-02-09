@@ -26,7 +26,11 @@ class _NavigationPageState extends State<NavigationPage> {
   GoogleNavigationViewController? _navigationViewController;
   bool _navigatorInitialized = false;
   bool _guidanceRunning = false;
-  NavigationTravelMode _travelMode = NavigationTravelMode.driving; // Default mode
+  bool _isRecentered = true; // ✅ New variable to track if map is centered
+  bool _navigationTripProgressBarEnabled = true;
+  bool _trafficEnabled = true;
+  bool _speedometerEnabled = true;
+  NavigationTravelMode _travelMode = NavigationTravelMode.driving;
 
   final List<NavigationWaypoint> predefinedWaypoints = [
     NavigationWaypoint.withLatLngTarget(
@@ -34,15 +38,9 @@ class _NavigationPageState extends State<NavigationPage> {
         target: LatLng(latitude: 18.457323, longitude: 73.8508694)),
     NavigationWaypoint.withLatLngTarget(
         title: "Waypoint 1",
-        target: LatLng(latitude: 18.4572755, longitude: 73.8516636)),
-    NavigationWaypoint.withLatLngTarget(
-        title: "Waypoint 2",
         target: LatLng(latitude: 18.4571116, longitude: 73.850638)),
     NavigationWaypoint.withLatLngTarget(
-        title: "Waypoint 3",
-        target: LatLng(latitude: 18.4655507, longitude: 73.8546827)),
-    NavigationWaypoint.withLatLngTarget(
-        title: "Waypoint 4",
+        title: "Waypoint 2",
         target: LatLng(latitude: 18.4655109, longitude: 73.854751)),
     NavigationWaypoint.withLatLngTarget(
         title: "End",
@@ -55,10 +53,25 @@ class _NavigationPageState extends State<NavigationPage> {
     _initializeNavigation();
   }
 
+  Future<void> _recenterMap() async {
+    if (_navigationViewController == null) return;
+
+    await _navigationViewController!.followMyLocation(CameraPerspective.tilted);
+    setState(() => _isRecentered = true); // ✅ Fix: Update UI after recentering
+  }
+
+
   Future<void> _initializeNavigation() async {
-    await GoogleMapsNavigator.initializeNavigationSession();
-    setState(() => _navigatorInitialized = true);
-    await _setPredefinedRoute();
+    try {
+      await GoogleMapsNavigator.initializeNavigationSession();
+      if (mounted) {
+        setState(() => _navigatorInitialized = true);
+      }
+      await _setPredefinedRoute();
+    } catch (e) {
+      debugPrint("Error initializing navigation: $e");
+      showMessage("Failed to initialize navigation.");
+    }
   }
 
   Future<void> _setPredefinedRoute() async {
@@ -66,7 +79,11 @@ class _NavigationPageState extends State<NavigationPage> {
 
     final Destinations destinations = Destinations(
       waypoints: predefinedWaypoints,
-      displayOptions: NavigationDisplayOptions(showDestinationMarkers: true),
+      displayOptions: NavigationDisplayOptions( // ✅ Removed `const`
+        showDestinationMarkers: true,
+        showStopSigns: true,
+        showTrafficLights: true,
+      ),
       routingOptions: RoutingOptions(travelMode: _travelMode),
     );
 
@@ -81,20 +98,43 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
   Future<void> _startGuidance() async {
-    await GoogleMapsNavigator.startGuidance();
-    await _navigationViewController?.setNavigationUIEnabled(true);
-    await _navigationViewController?.followMyLocation(CameraPerspective.tilted);
+    try {
+      await GoogleMapsNavigator.startGuidance();
+      if (_navigationViewController == null) return;
 
-    setState(() => _guidanceRunning = true);
+      await _navigationViewController!.setNavigationUIEnabled(true);
+      await _navigationViewController!.followMyLocation(CameraPerspective.tilted);
+
+      if (mounted) {
+        setState(() {
+          _guidanceRunning = true;
+        });
+      }
+
+      await _enableNavigationFeatures();
+    } catch (e) {
+      debugPrint("Error starting guidance: $e");
+      showMessage("Failed to start guidance.");
+    }
+  }
+
+  Future<void> _enableNavigationFeatures() async {
+    if (_navigationViewController == null) return;
+
+    await _navigationViewController!.setTrafficIncidentCardsEnabled(_trafficEnabled);
+    await _navigationViewController!.setNavigationTripProgressBarEnabled(_navigationTripProgressBarEnabled);
+    await _navigationViewController!.setSpeedometerEnabled(_speedometerEnabled);
   }
 
   void _handleNavigationError(NavigationRouteStatus status) {
-    String errorMessage = switch (status) {
-      NavigationRouteStatus.routeNotFound => "Route not found.",
-      NavigationRouteStatus.networkError => "Check your internet connection.",
-      NavigationRouteStatus.apiKeyNotAuthorized => "Invalid API Key.",
-      _ => "Unknown error.",
-    };
+    String errorMessage = "Unknown error.";
+    if (status == NavigationRouteStatus.routeNotFound) {
+      errorMessage = "Route not found.";
+    } else if (status == NavigationRouteStatus.networkError) {
+      errorMessage = "Check your internet connection.";
+    } else if (status == NavigationRouteStatus.apiKeyNotAuthorized) {
+      errorMessage = "Invalid API Key.";
+    }
     showMessage(errorMessage);
   }
 
@@ -106,7 +146,7 @@ class _NavigationPageState extends State<NavigationPage> {
     setState(() {
       _travelMode = mode;
     });
-    await _setPredefinedRoute(); // Recalculate the route with the selected mode
+    await _setPredefinedRoute();
   }
 
   @override
@@ -114,10 +154,9 @@ class _NavigationPageState extends State<NavigationPage> {
     return Scaffold(
       body: Column(
         children: [
-          // Placing the travel mode selection where the AppBar was
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0), // Adds spacing below the status bar
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: _travelModeSelection(),
             ),
           ),
@@ -125,11 +164,14 @@ class _NavigationPageState extends State<NavigationPage> {
             child: _navigatorInitialized
                 ? GoogleMapsNavigationView(
               onViewCreated: (controller) {
-                _navigationViewController = controller;
+                setState(() {
+                  _navigationViewController = controller;
+                });
+                _enableNavigationFeatures();
               },
               initialCameraPosition: CameraPosition(
-                target: predefinedWaypoints.first.target ??
-                    const LatLng(latitude: 18.457323, longitude: 73.8508694),
+                target: predefinedWaypoints.first.target ?? // ✅ Fixed null issue
+                    LatLng(latitude: 0.0, longitude: 0.0), // Default if null
                 zoom: 15,
               ),
               initialNavigationUIEnabledPreference: NavigationUIEnabledPreference.automatic,
@@ -141,7 +183,6 @@ class _NavigationPageState extends State<NavigationPage> {
     );
   }
 
-  /// UI for selecting travel modes
   Widget _travelModeSelection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -163,14 +204,15 @@ class _NavigationPageState extends State<NavigationPage> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
-              padding: const EdgeInsets.all(5),
-              child: Icon(
-                icon,
-                size: 30,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.secondary,
-              )),
+            padding: const EdgeInsets.all(5),
+            child: Icon(
+              icon,
+              size: 30,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.secondary,
+            ),
+          ),
           if (isSelected)
             Container(
               height: 3,
