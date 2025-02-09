@@ -93,7 +93,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
         // Send the POST request
         final response = await http.post(
-          Uri.parse('https://safeyatra.onrender.com/auth/login'),
+          Uri.parse('https://safeyatra.onrender.com/auth/register'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
