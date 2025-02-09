@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'guardian_setup.dart';
+import 'package:http/http.dart' as http; //delete
+import 'dart:convert'; //delete
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -35,9 +37,31 @@ class _SignUpPageState extends State<SignUpPage> {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-  void _onSignUpPressed() {
+  // void _onSignUpPressed() {
+  //   if (_formKey.currentState!.validate()) {
+  //     // Check age and navigate to guardian setup if needed
+  //     int age = int.parse(_ageController.text);
+  //     if (age < 15) {
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => GuardianSetupPage(
+  //             childAge: _ageController.text,
+  //           ),
+  //         ),
+  //       );
+  //     } else {
+  //       // TODO: Implement regular sign up logic
+  //       print('Email: ${_emailController.text}');
+  //       print('Phone: ${_phoneController.text}');
+  //       print('Age: ${_ageController.text}');
+  //       print('Gender: $_selectedGender');
+  //       print('Password: ${_passwordController.text}');
+  //     }
+  //   }
+  // }
+  void _onSignUpPressed() async {
     if (_formKey.currentState!.validate()) {
-      // Check age and navigate to guardian setup if needed
       int age = int.parse(_ageController.text);
       if (age < 15) {
         Navigator.push(
@@ -49,16 +73,48 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         );
       } else {
-        // TODO: Implement regular sign up logic
-        print('Email: ${_emailController.text}');
-        print('Phone: ${_phoneController.text}');
-        print('Age: ${_ageController.text}');
-        print('Gender: $_selectedGender');
-        print('Password: ${_passwordController.text}');
+        // Prepare the data to be sent
+        final Map<String, dynamic> signUpData = {
+          "email": _emailController.text,
+          "phone_number": _phoneController.text,
+          "age": age,
+          "gender": _selectedGender,
+          "password": _passwordController.text,
+          "full_name": "", // Add fields as needed
+          "vehicle_number": "",
+          "vehicle_color": "",
+          "emergency_contacts": [],
+          "work_address": "",
+          "home_address": "",
+        };
+
+        // Convert the data to JSON
+        final String jsonData = jsonEncode(signUpData);
+
+        // Send the POST request
+        final response = await http.post(
+          Uri.parse('https://safeyatra.onrender.com/auth/login'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonData,
+        );
+
+        // Check the response status
+        if (response.statusCode == 200) {
+          // Handle successful sign-up
+          print('Sign-up successful');
+          // Navigate to the next screen or show a success message
+        } else {
+          // Handle error
+          print('Sign-up failed: ${response.body}');
+          // Show an error message to the user
+        }
       }
     }
   }
 
+//yacha varcha delete
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,8 +144,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             .textTheme
                             .headlineMedium!
                             .copyWith(
-                          color: const Color.fromRGBO(216, 196, 182, 1),
-                        ),
+                              color: const Color.fromRGBO(216, 196, 182, 1),
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -172,9 +228,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     value: _selectedGender,
                     items: ['Male', 'Female', 'Other']
                         .map((gender) => DropdownMenuItem(
-                      value: gender,
-                      child: Text(gender),
-                    ))
+                              value: gender,
+                              child: Text(gender),
+                            ))
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
@@ -232,7 +288,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         onPressed: () {
                           setState(() {
                             _isConfirmPasswordVisible =
-                            !_isConfirmPasswordVisible;
+                                !_isConfirmPasswordVisible;
                           });
                         },
                       ),
@@ -383,9 +439,9 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
                     begin: _topAlignment.value,
                     end: _bottomAlignment.value,
                     colors: const [
-                      Color.fromRGBO(33, 53, 85, 1),
-                      Color.fromRGBO(62, 88, 121, 1),
-                    ])),
+                  Color.fromRGBO(33, 53, 85, 1),
+                  Color.fromRGBO(62, 88, 121, 1),
+                ])),
             child: widget.child,
           );
         });
