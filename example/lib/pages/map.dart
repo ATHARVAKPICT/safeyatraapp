@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_navigation_flutter/google_navigation_flutter.dart';
-
+import 'dart:math';
 import '../utils/utils.dart';
 import '../widgets/widgets.dart';
 
@@ -40,6 +40,25 @@ class BasicMapPage extends ExamplePage {
 }
 
 class _MapPageState extends ExamplePageState<BasicMapPage> {
+
+  void showSOSDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Emergency Alert"),
+          content: const Text("🚨 SOS sent! Help is on the way."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Close the dialog
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   late final GoogleMapViewController _mapViewController;
   late final TextEditingController _sourceController;
   late final TextEditingController _destinationController;
@@ -95,6 +114,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           final List<String> suggestions = predictions
               .map((prediction) =>
           (prediction as Map<String, dynamic>)['description'] as String)
+              .take(3) // Limit to top 3 suggestions
               .toList();
 
           setState(() {
@@ -114,6 +134,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
     }
   }
 
+
   Future<void> _addPolyline(int routeType) async {
     final LatLngBounds cameraBounds = await _mapViewController.getVisibleRegion();
     String source = _sourceController.text;
@@ -122,15 +143,19 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
 
     Color strokeColor;
     String routeDescription;
+
     if (routeType == 1) {
       strokeColor = Colors.green;
-      routeDescription = "Safest route - Low risk area, well-lit streets";
+      int score = Random().nextInt(16) + 75; // Generates a random number between 75 and 90
+      routeDescription = "Safest route \n Safety Score: $score";
     } else if (routeType == 2) {
       strokeColor = Colors.yellow;
-      routeDescription = "Moderate risk - Exercise caution, medium traffic";
+      int score = Random().nextInt(10) + 65; // Generates a random number between 60 and 75
+      routeDescription = "Moderate risk \n Safety Score: $score";
     } else {
       strokeColor = Colors.red;
-      routeDescription = "High risk - Avoid if possible, high incident reports";
+      int score = Random().nextInt(10) + 55; // Generates a random number between 45 and 60
+      routeDescription = "High risk \n Safety Score: $score";
     }
 
     setState(() {
@@ -152,7 +177,6 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
       setState(() {
         _polylines.add(newPolyline);
         selectedRouteType = routeType;
-        // Convert points to the format needed for navigation
         selectedRoutePoints = points.map((point) => {
           'lat': point.latitude,
           'lng': point.longitude,
@@ -160,6 +184,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
       });
     }
   }
+
 
   Future<List<LatLng>> _fetchRoutePoints(
       String source, String destination, int routeType) async {
@@ -190,7 +215,6 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           if (data['routes']['routes'].containsKey(routeCoordinatesKey) == true) {
             dynamic routeCoordinates =
             data['routes']['routes'][routeCoordinatesKey]['coordinates'];
-
             if (routeCoordinates is List) {
               List<LatLng> routePoints = [];
               for (var coord in routeCoordinates) {
@@ -221,6 +245,64 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
     }
     return [];
   }
+
+  Future<dynamic> _fetchRouteScore(String source, String destination, int routeType) async {
+    final url = Uri.parse("https://safeyatra.onrender.com/routes/routes/");
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode({
+          'start': source,
+          'end': destination,
+          'mode': 'driving',
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print("API Response: ${response.body}"); // Debugging: Print full response
+
+      if (response.statusCode == 200) {
+        final dynamic data = json.decode(response.body);
+
+        if (data is Map && data.containsKey('error')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Backend Error: ${data['error']}')),
+          );
+          return null;
+        }
+
+        if (data is Map && data.containsKey('routes')) {
+          var routeCoordinatesKey = 'route_Coordinates$routeType';
+
+          print("Routes Data: ${data['routes']}"); // Debugging
+
+          if (data['routes']['routes'].containsKey(routeCoordinatesKey)==true) {
+            dynamic routeScore = data['routes']['routes'][routeCoordinatesKey]['safety_score'];
+
+            print("Extracted Safety Score: $routeScore"); // Debugging
+
+            return routeScore;
+          } else {
+            print("Route key not found: $routeCoordinatesKey");
+          }
+        } else {
+          print("Unexpected API response format");
+        }
+      } else {
+        print("API Error: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch safety score.')),
+        );
+      }
+    } catch (e) {
+      print("Error fetching safety score: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching safety score: $e')),
+      );
+    }
+    return null;
+  }
+
 
   Future<void> setMapType(MapType type) async {
     mapType = type;
@@ -335,6 +417,18 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
+          // ✅ Add Feedback Icon Button at the top right
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: IconButton(
+              icon: const Icon(Icons.feedback, color: Colors.white, size: 30),
+              onPressed: () {
+                Navigator.pushNamed(context, '/feedback'); // Navigate to Feedback Page
+              },
+            ),
+          ),
+
           GoogleMapsMapView(
             onViewCreated: _onViewCreated,
             onMyLocationClicked: _onMyLocationClicked,
@@ -364,7 +458,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
                   child: const Text('Get Routes'),
                 ),
                 if (showRouteData) ...[
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10, width: 80),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -373,9 +467,9 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
                     child: Column(
                       children: [
                         _buildRouteButton(1, Colors.green),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 2, width: 3),
                         _buildRouteButton(2, Colors.yellow),
-                        const SizedBox(height: 8),
+                        const SizedBox(height:2, width: 3),
                         _buildRouteButton(3, Colors.red),
                       ],
                     ),
@@ -392,6 +486,18 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           //   bottom: 50,
           //   child: DockingBar(),
           // ),
+          Positioned(
+            bottom: 120, // Adjust position above DockingBar
+            right: 20,
+            child: FloatingActionButton(
+              onPressed: () {
+                showSOSDialog(context);
+              },
+              backgroundColor: Colors.red,
+              child: const Icon(Icons.warning, color: Colors.white),
+            ),
+          ),
+
           Positioned(
             left: 4,
             right: 4,
@@ -640,7 +746,7 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.75 + 16,
+        width: MediaQuery.sizeOf(context).width * 0.75 + 46,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),

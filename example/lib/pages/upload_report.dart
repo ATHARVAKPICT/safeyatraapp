@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For platform-specific code
+import 'package:flutter/services.dart';
 import 'dart:io';
 
 class UploadReportPage extends StatefulWidget {
@@ -14,12 +14,9 @@ class _UploadReportPageState extends State<UploadReportPage> {
   final TextEditingController _locationTagController = TextEditingController();
   File? _uploadedImage;
 
-  // Using native Android Image selection (without image_picker)
   Future<void> _uploadImage() async {
     try {
-      // Check if the platform is Android to pick image
       if (Platform.isAndroid) {
-        // Android code to pick an image
         final File selectedImage = await _pickImageFromAndroid();
         if (selectedImage != null) {
           setState(() {
@@ -32,58 +29,54 @@ class _UploadReportPageState extends State<UploadReportPage> {
     }
   }
 
-  // This will be the Android-specific image picking
   Future<File> _pickImageFromAndroid() async {
-    // Implement Android-specific code here to select image via file picker or camera
-    // Example: Using the 'android_intent' or other native solutions
-    // Return the File after selecting
-    return File('path/to/your/image.jpg');  // Replace with actual logic
+    return File('path/to/your/image.jpg');
   }
 
   void _postReport() {
     final description = _descriptionController.text;
     final locationTag = _locationTagController.text;
 
-    if (description.isEmpty || locationTag.isEmpty || _uploadedImage == null) {
+    // Modified validation to only check for description and location
+    if (description.isEmpty || locationTag.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Please complete all fields and upload an image')));
-    return;
+              content: Text('Please fill in both description and location tag')));
+      return;
     }
 
     showDialog(
-    context: context,
-    builder: (context) {
-    return AlertDialog(
-    title: const Text('Confirm Post'),
-    content: const Text('Are you sure you want to post this report?'),
-    actions: [
-    TextButton(
-    onPressed: () {
-    Navigator.pop(context); // Dismiss the dialog
-    },
-    child: const Text('Cancel'),
-    ),
-    ElevatedButton(
-    onPressed: () {
-    Navigator.pop(context); // Dismiss the dialog
-    // Handle post logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Report posted successfully!')),
-    );
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Post'),
+          content: const Text('Are you sure you want to post this report?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Report posted successfully!')),
+                );
 
-    // Clear inputs after posting
-    _descriptionController.clear();
-    _locationTagController.clear();
-    setState(() {
-    _uploadedImage = null;
-    });
-    },
-    child: const Text('Post'),
-    ),
-    ],
-    );
-    },
+                // Clear inputs after posting
+                _descriptionController.clear();
+                _locationTagController.clear();
+                setState(() {
+                  _uploadedImage = null;
+                });
+              },
+              child: const Text('Post'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -92,7 +85,7 @@ class _UploadReportPageState extends State<UploadReportPage> {
     return Scaffold(
       body: Stack(
         children: [
-          const AnimatedGradientBackground(), // Animated background
+          const AnimatedGradientBackground(),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
@@ -112,16 +105,14 @@ class _UploadReportPageState extends State<UploadReportPage> {
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700], // Change this color as needed
-                      foregroundColor: Colors.white, // This will make the text and icon white
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     onPressed: _uploadImage,
-                    icon: const Icon(Icons.image,
-                        color: Colors.black), // Icon color changed to black
-                    label: const Text('Upload Image',
-                        style: TextStyle(
-                            color: Colors.black)), // Text color changed to black
+                    icon: const Icon(Icons.image, color: Colors.black),
+                    label: const Text('Upload Image (Optional)',
+                        style: TextStyle(color: Colors.black)),
                   ),
                   if (_uploadedImage != null)
                     Padding(
@@ -139,11 +130,9 @@ class _UploadReportPageState extends State<UploadReportPage> {
                     decoration: const InputDecoration(
                       labelText: 'Description',
                       hintText: 'Describe the incident...',
-                      labelStyle: TextStyle(
-                          color: Colors.white), // Label color changed to white
+                      labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description,
-                          color: Colors.white), // Added icon
+                      prefixIcon: Icon(Icons.description, color: Colors.white),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -152,24 +141,21 @@ class _UploadReportPageState extends State<UploadReportPage> {
                     decoration: const InputDecoration(
                       labelText: 'Location Tag',
                       hintText: 'Enter location tag...',
-                      labelStyle: TextStyle(
-                          color: Colors.white), // Label color changed to white
+                      labelStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.location_on,
-                          color: Colors.white), // Added icon
+                      prefixIcon: Icon(Icons.location_on, color: Colors.white),
                     ),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700], // Change this color as needed
-                      foregroundColor: Colors.white, // This will make the text and icon white
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     onPressed: _postReport,
                     child: const Text('Post Report',
-                        style: TextStyle(
-                            color: Colors.black)), // Text color changed to black
+                        style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
@@ -186,7 +172,6 @@ class _UploadReportPageState extends State<UploadReportPage> {
     );
   }
 }
-
 
 // Other classes (DockingBar, AnimatedGradientBackground) remain unchanged
 
@@ -209,7 +194,7 @@ class _DockingBarState extends State<DockingBar> {
   ];
 
   final List<String> routes = [
-    '/maps',
+    '/basicMap',
     '/search',
     '/upload_report',
     '/community',
@@ -224,7 +209,7 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.8 +2,
+        width: MediaQuery.sizeOf(context).width * 0.8 +34,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),
@@ -388,4 +373,3 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
     );
   }
 }
-

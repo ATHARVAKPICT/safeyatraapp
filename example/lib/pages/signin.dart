@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'signup.dart'; // Import the signup page
 import 'map.dart';
 
@@ -11,21 +13,44 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _onSignInPressed() {
+  Future<void> _onSignInPressed() async {
     if (_formKey.currentState!.validate()) {
-      // Navigate to the map page after successful sign-in
-      Navigator.pushNamed(context, '/basicMap');
+      final response = await http.post(
+        Uri.parse('https://safeyatra.onrender.com/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "email": _emailController.text,
+          "phone_number": "",
+          "age": 0,
+          "gender": "",
+          "password": _passwordController.text,
+          "full_name": "",
+          "vehicle_number": "",
+          "vehicle_color": "",
+          "emergency_contacts": [],
+          "work_address": "",
+          "home_address": ""
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushNamed(context, '/basicMap');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: ${response.body}')),
+        );
+      }
     }
   }
 
@@ -42,8 +67,8 @@ class _SignInPageState extends State<SignInPage> {
                 left: 10,
                 child: Image.asset(
                   'assets/safeyatraofficiallogo.png',
-                  height: 100,
-                  width: 100,
+                  height: 60,
+                  width: 60,
                 ),
               ),
               Padding(
@@ -62,13 +87,13 @@ class _SignInPageState extends State<SignInPage> {
                             ?.copyWith(color: const Color.fromRGBO(216, 196, 182, 1)),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: 30),
                       TextFormField(
-                        controller: _usernameController,
+                        controller: _emailController,
                         decoration: InputDecoration(
-                          labelText: 'Username',
+                          labelText: 'Email',
                           labelStyle: const TextStyle(color: Colors.white),
-                          prefixIcon: const Icon(Icons.person, color: Colors.white),
+                          prefixIcon: const Icon(Icons.email, color: Colors.white),
                           border: const OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.black),
                           ),
@@ -76,12 +101,12 @@ class _SignInPageState extends State<SignInPage> {
                         style: const TextStyle(color: Colors.white),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your username';
+                            return 'Please enter your email';
                           }
                           return null;
                         },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: !_isPasswordVisible,
@@ -114,10 +139,11 @@ class _SignInPageState extends State<SignInPage> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: _onSignInPressed,
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: const Text('Sign In', style: TextStyle(fontSize: 16, color: Colors.blueGrey)),

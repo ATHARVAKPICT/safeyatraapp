@@ -38,6 +38,13 @@ dev_dependencies:
   melos: ^6.0.0
   mockito: 5.4.4
   pigeon: 15.0.0
+#  flutter_launcher_icons: ^0.14.3
+
+#flutter_icons:
+#  android: true
+#  image_path: "assets/safeyatraofficiallogo.png"
+#  adaptive_icon_background: "#ffffff"
+
 
 flutter:
   plugin:

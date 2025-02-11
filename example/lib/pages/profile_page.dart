@@ -134,7 +134,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      'Username',
+                      'Nausheen RV',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -276,7 +276,7 @@ class _DockingBarState extends State<DockingBar> {
   ];
 
   final List<String> routes = [
-    '/maps',
+    '/basicMap',
     '/search',
     '/upload_report',
     '/community',
@@ -291,7 +291,7 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.8 +2,
+        width: MediaQuery.sizeOf(context).width * 0.8 +34,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),

@@ -25,6 +25,7 @@ import 'pages/map.dart';
 import 'pages/community.dart';
 import 'pages/profile_page.dart';
 import 'pages/upload_report.dart';
+import 'pages/feedback.dart';
 
 void main() {
   runApp(const NavigationApp());
@@ -73,6 +74,7 @@ class NavigationApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/upload_report': (context) => const UploadReportPage(),
         '/community': (context) => const CommunityPage(),
+        '/feedback': (context) => const FeedbackPage(),
       },
     );
   }

@@ -11,23 +11,23 @@ class CommunityPage extends StatefulWidget {
 class _CommunityPageState extends State<CommunityPage> {
   final List<Map<String, dynamic>> _incidents = [
     {
-      'description': 'Incident at Main Street: Suspicious activity reported.',
-      'location': 'Main Street',
-      'image': 'assets/safeyatralog.png',
+      'description': 'I was walking near a shopping mall in Kalyani Nagar around 6:30 PM when I saw a man trying to lure a little girl away. She looked scared, and he kept insisting she follow him. I knew something was wrong, so I called out to her loudly, and the man immediately backed off and rushed away. I alerted the security guards, and we informed the police, but he was already gone. It was terrifying to think what could have happened if no one had noticed.',
+      'location': 'Kalyani Nagar',
+      'image': 'assets/shadymall.jpeg',
       'upvotes': 0,
       'downvotes': 0,
     },
     {
-      'description': 'Power outage near Pine Street reported.',
-      'location': 'Pine Street',
-      'image': null,
+      'description': 'Last night, around 9:45 PM, I was walking home in Viman Nagar when I felt someone following me. At first, I thought it was just in my head, but every time I changed direction, he did too. My heart started racing, and I quickly walked into a crowded store nearby. I stayed there for a few minutes, pretending to browse, and when I looked outside, he was gone. I don’t know who he was or what he wanted, but it left me shaken.',
+      'location': 'Viman Nagar',
+      'image': 'assets/shadyapt.jpeg',
       'upvotes': 0,
       'downvotes': 0,
     },
     {
-      'description': 'Road accident at Elm Avenue. Caution advised.',
-      'location': 'Elm Avenue',
-      'image': null,
+      'description': 'I was waiting for a cab outside Pune Railway Station at 5:30 PM when a group of men started making comments at me. At first, I ignored them, but they kept getting closer, trying to block my way. I felt trapped and didn’t know what to do. Thankfully, a few people around noticed and stepped in, which made them back off. I managed to leave safely, but I was scared. I later filed a complaint because no one should have to go through this.',
+      'location': 'Pune Railway Station',
+      'image': 'assets/shadyrail.jpeg',
       'upvotes': 0,
       'downvotes': 0,
     },
@@ -59,6 +59,11 @@ class _CommunityPageState extends State<CommunityPage> {
     return AnimatedGradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('Community', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.blueGrey[900],
+          centerTitle: true,
+        ),
         body: Stack(
           children: [
             ListView.builder(
@@ -72,6 +77,7 @@ class _CommunityPageState extends State<CommunityPage> {
                     borderRadius: BorderRadius.circular(8),
                     side: const BorderSide(color: Colors.black, width: 1),
                   ),
+                  color: Colors.blueGrey,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -99,6 +105,7 @@ class _CommunityPageState extends State<CommunityPage> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -106,7 +113,7 @@ class _CommunityPageState extends State<CommunityPage> {
                           'Location: ${incident['location']}',
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -118,8 +125,10 @@ class _CommunityPageState extends State<CommunityPage> {
                                 IconButton(
                                   onPressed: () => _upvotePost(index),
                                   icon: const Icon(Icons.thumb_up),
+                                  color: Colors.black,
                                 ),
-                                Text('${incident['upvotes']}'),
+                                Text('${incident['upvotes']}',
+                                    style: const TextStyle(color: Colors.black)),
                               ],
                             ),
                             Row(
@@ -127,8 +136,10 @@ class _CommunityPageState extends State<CommunityPage> {
                                 IconButton(
                                   onPressed: () => _downvotePost(index),
                                   icon: const Icon(Icons.thumb_down),
+                                  color: Colors.black,
                                 ),
-                                Text('${incident['downvotes']}'),
+                                Text('${incident['downvotes']}',
+                                    style: const TextStyle(color: Colors.black)),
                               ],
                             ),
                           ],
@@ -152,6 +163,7 @@ class _CommunityPageState extends State<CommunityPage> {
   }
 }
 
+
 class DockingBar extends StatefulWidget {
   const DockingBar({super.key});
 
@@ -171,7 +183,7 @@ class _DockingBarState extends State<DockingBar> {
   ];
 
   final List<String> routes = [
-    '/maps',
+    '/basicMap',
     '/search',
     '/upload_report',
     '/community',
@@ -186,7 +198,7 @@ class _DockingBarState extends State<DockingBar> {
     return Center(
       child: Container(
         clipBehavior: Clip.none,
-        width: MediaQuery.sizeOf(context).width * 0.8 +2,
+        width: MediaQuery.sizeOf(context).width * 0.8 +34,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.1),

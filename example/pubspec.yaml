@@ -50,6 +50,9 @@
       - assets/marker1.png
       - assets/safeyatralog.png
       - assets/safeyatraofficiallogo.png
+      - assets/shadymall.jpeg
+      - assets/shadyrail.jpeg
+      - assets/shadyapt.jpeg
 
   patrol:
     app_name: Navigation Example

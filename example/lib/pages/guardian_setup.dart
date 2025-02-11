@@ -163,6 +163,7 @@ class _GuardianSetupPageState extends State<GuardianSetupPage> {
                     ElevatedButton(
                       onPressed: _onCompleteSetup,
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: const Text(
