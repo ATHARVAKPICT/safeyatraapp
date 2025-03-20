@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_navigation_flutter/google_navigation_flutter.dart';
+import '../utils/location_permissions.dart';
+import '../utils/terms_of_service.dart';
 
 enum SimulationState {
   unknown,
@@ -47,11 +49,19 @@ class _NavigationPageState extends State<NavigationPage> {
         target: LatLng(latitude: 18.501996, longitude: 73.863402)),
   ];
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _initializeNavigation();
+  // }
   @override
   void initState() {
     super.initState();
-    _initializeNavigation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeNavigation();
+    });
   }
+
 
   Future<void> _recenterMap() async {
     if (_navigationViewController == null) return;
@@ -61,7 +71,40 @@ class _NavigationPageState extends State<NavigationPage> {
   }
 
 
+  // Future<void> _initializeNavigation() async {
+  //   try {
+  //     await GoogleMapsNavigator.initializeNavigationSession();
+  //     if (mounted) {
+  //       setState(() => _navigatorInitialized = true);
+  //     }
+  //     await _setPredefinedRoute();
+  //   } catch (e) {
+  //     debugPrint("Error initializing navigation: $e");
+  //     showMessage("Failed to initialize navigation.");
+  //   }
+  // }
   Future<void> _initializeNavigation() async {
+    // Request Terms and Conditions acceptance.
+    final bool tosAccepted = await requestTermsAndConditionsAcceptance();
+    // Request location permissions.
+    final bool locationAccepted = await requestLocationDialogAcceptance();
+
+    // Update your internal state (and/or call any SDK methods if available)
+    if (tosAccepted) {
+      // Optionally, call an SDK method or update a state variable
+      // e.g., GoogleMapsNavigator.acceptTermsOfService();
+      // _termsAndConditionsAccepted = true;
+    }
+    if (locationAccepted) {
+      // _locationPermissionsAccepted = true;
+    }
+
+    if (!tosAccepted || !locationAccepted) {
+      showMessage(
+          "Terms and conditions and location permissions are required for navigation.");
+      return;
+    }
+
     try {
       await GoogleMapsNavigator.initializeNavigationSession();
       if (mounted) {
@@ -73,6 +116,8 @@ class _NavigationPageState extends State<NavigationPage> {
       showMessage("Failed to initialize navigation.");
     }
   }
+
+
 
   Future<void> _setPredefinedRoute() async {
     if (!_navigatorInitialized) return;

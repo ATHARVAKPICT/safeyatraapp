@@ -30,7 +30,7 @@
 
     <application
         android:label="google_navigation_flutter_example"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
@@ -60,7 +60,7 @@
             android:name=".SampleAndroidAutoService"
             android:exported="true"
             android:label="google_navigation_flutter_example"
-            android:icon="@mipmap/ic_launcher">
+            android:icon="@mipmap/launcher_icon">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
                 <category android:name="androidx.car.app.category.NAVIGATION" />

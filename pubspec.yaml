@@ -38,6 +38,12 @@ dev_dependencies:
   melos: ^6.0.0
   mockito: 5.4.4
   pigeon: 15.0.0
+  flutter_launcher_icons: "^0.14.3"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/SafeYatra.png"
 #  flutter_launcher_icons: ^0.14.3
 
 #flutter_icons:

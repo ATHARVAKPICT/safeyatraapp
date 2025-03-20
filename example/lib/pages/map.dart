@@ -147,15 +147,15 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
     if (routeType == 1) {
       strokeColor = Colors.green;
       int score = Random().nextInt(16) + 75; // Generates a random number between 75 and 90
-      routeDescription = "Safest route \n Safety Score: $score";
+      routeDescription = "$score";
     } else if (routeType == 2) {
       strokeColor = Colors.yellow;
       int score = Random().nextInt(10) + 65; // Generates a random number between 60 and 75
-      routeDescription = "Moderate risk \n Safety Score: $score";
+      routeDescription = "$score";
     } else {
       strokeColor = Colors.red;
       int score = Random().nextInt(10) + 55; // Generates a random number between 45 and 60
-      routeDescription = "High risk \n Safety Score: $score";
+      routeDescription = "$score";
     }
 
     setState(() {
@@ -407,12 +407,125 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
     );
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   final ButtonStyle mapTypeStyle = ElevatedButton.styleFrom(
+  //       minimumSize: const Size(80, 36),
+  //       disabledBackgroundColor:
+  //       Theme.of(context).colorScheme.primaryContainer);
+  //
+  //   return Scaffold(
+  //     body: Stack(
+  //       children: <Widget>[
+  //         // ✅ Add Feedback Icon Button at the top right
+  //         Positioned(
+  //           bottom: 20,
+  //           right: 20,
+  //           child: IconButton(
+  //             icon: const Icon(Icons.feedback, color: Colors.white, size: 30),
+  //             onPressed: () {
+  //               Navigator.pushNamed(context, '/feedback'); // Navigate to Feedback Page
+  //             },
+  //           ),
+  //         ),
+  //
+  //         GoogleMapsMapView(
+  //           onViewCreated: _onViewCreated,
+  //           onMyLocationClicked: _onMyLocationClicked,
+  //           onMyLocationButtonClicked: _onMyLocationButtonClicked,
+  //         ),
+  //         _buildLocationInputs(),
+  //         Padding(
+  //           padding: const EdgeInsets.only(top: 200, left: 16, right: 16),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.stretch,
+  //             children: <Widget>[
+  //               ElevatedButton(
+  //                 style: ElevatedButton.styleFrom(
+  //                   backgroundColor: Colors.blue, // changed to blue background
+  //                   foregroundColor: Colors.white, // changed to white text
+  //                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //                 ),
+  //                 onPressed: () {
+  //                   _mapViewController.clearPolylines();
+  //                   _addPolyline(3);
+  //                   _addPolyline(2);
+  //                   _addPolyline(1);
+  //                   setState(() {
+  //                     showRouteData = true;
+  //                   });
+  //                 },
+  //                 child: const Text('Get Routes'),
+  //               ),
+  //               if (showRouteData) ...[
+  //                 const SizedBox(height: 10, width: 80),
+  //                 Container(
+  //                   padding: const EdgeInsets.all(8),
+  //                   decoration: BoxDecoration(
+  //                     color: Colors.transparent,
+  //                   ),
+  //                   child: Column(
+  //                     children: [
+  //                       _buildRouteButton(1, Colors.green),
+  //                       const SizedBox(height: 2, width: 3),
+  //                       _buildRouteButton(2, Colors.yellow),
+  //                       const SizedBox(height:2, width: 3),
+  //                       _buildRouteButton(3, Colors.red),
+  //                     ],
+  //                   ),
+  //
+  //
+  //
+  //
+  //                 ),
+  //               ],
+  //             ],
+  //           ),
+  //         ),
+  //         // getOverlayOptionsButton(context, onPressed: () => toggleOverlay()),
+  //         // Add DockingBar at the bottom
+  //         // const Positioned(
+  //         //   left: 4,
+  //         //   right: 4,
+  //         //   bottom: 50,
+  //         //   child: DockingBar(),
+  //         // ),
+  //         Positioned(
+  //           bottom: 120, // Adjust position above DockingBar
+  //           right: 20,
+  //           child: FloatingActionButton(
+  //             onPressed: () {
+  //               showSOSDialog(context);
+  //             },
+  //             backgroundColor: Colors.red,
+  //             child: const Icon(Icons.warning, color: Colors.white),
+  //           ),
+  //         ),
+  //
+  //         Positioned(
+  //           left: 4,
+  //           right: 4,
+  //           bottom: 40,
+  //           child: LayoutBuilder(
+  //             builder: (context, constraints) {
+  //               return Container(
+  //                 width: constraints.maxWidth,
+  //                 alignment: Alignment.bottomLeft,
+  //                 child: const DockingBar(),
+  //               );
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
     final ButtonStyle mapTypeStyle = ElevatedButton.styleFrom(
-        minimumSize: const Size(80, 36),
-        disabledBackgroundColor:
-        Theme.of(context).colorScheme.primaryContainer);
+      minimumSize: const Size(80, 36),
+      disabledBackgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    );
 
     return Scaffold(
       body: Stack(
@@ -429,12 +542,15 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
             ),
           ),
 
+          // ✅ Map View
           GoogleMapsMapView(
             onViewCreated: _onViewCreated,
             onMyLocationClicked: _onMyLocationClicked,
             onMyLocationButtonClicked: _onMyLocationButtonClicked,
           ),
           _buildLocationInputs(),
+
+          // ✅ "Get Routes" Button (UNCHANGED)
           Padding(
             padding: const EdgeInsets.only(top: 200, left: 16, right: 16),
             child: Column(
@@ -442,8 +558,8 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
               children: <Widget>[
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // changed to blue background
-                    foregroundColor: Colors.white, // changed to white text
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                   onPressed: () {
@@ -457,35 +573,29 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
                   },
                   child: const Text('Get Routes'),
                 ),
-                if (showRouteData) ...[
-                  const SizedBox(height: 10, width: 80),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                    ),
+
+                // ✅ Move Safety Score Buttons to the Right Side
+                if (showRouteData)
+                  Positioned(
+                    right: 16, // Move buttons to right side
+                    top: MediaQuery.of(context).size.height * 0.1, // Adjust position
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end, // Align buttons to right
                       children: [
                         _buildRouteButton(1, Colors.green),
-                        const SizedBox(height: 2, width: 3),
+                        const SizedBox(height: 5),
                         _buildRouteButton(2, Colors.yellow),
-                        const SizedBox(height:2, width: 3),
+                        const SizedBox(height: 5),
                         _buildRouteButton(3, Colors.red),
+                        const SizedBox(height: 5),
                       ],
                     ),
                   ),
-                ],
               ],
             ),
           ),
-          // getOverlayOptionsButton(context, onPressed: () => toggleOverlay()),
-          // Add DockingBar at the bottom
-          // const Positioned(
-          //   left: 4,
-          //   right: 4,
-          //   bottom: 50,
-          //   child: DockingBar(),
-          // ),
+
+          // ✅ Floating SOS Button
           Positioned(
             bottom: 120, // Adjust position above DockingBar
             right: 20,
@@ -498,6 +608,7 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
             ),
           ),
 
+          // ✅ Docking Bar (UNCHANGED)
           Positioned(
             left: 4,
             right: 4,
@@ -517,15 +628,68 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
     );
   }
 
+  // @override
+  // Widget _buildRouteButton(int routeType, Color color) {
+  //   return Container(
+  //     width: double.infinity,
+  //     child: ElevatedButton(
+  //       style: ElevatedButton.styleFrom(
+  //         backgroundColor: color,
+  //         foregroundColor: color == Colors.yellow ? Colors.black : Colors.white,
+  //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //       ),
+  //       onPressed: () async {
+  //         await _mapViewController.clearPolylines();
+  //         await _addPolyline(routeType);
+  //
+  //         // Navigate to navigation page after route is selected
+  //         if (selectedRoutePoints.isNotEmpty) {
+  //           Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //               builder: (context) => NavigationPage(
+  //                 routePoints: selectedRoutePoints,
+  //               ),
+  //             ),
+  //           );
+  //         }
+  //       },
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             'Route $routeType',
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.bold,
+  //               color: color == Colors.yellow ? Colors.black : Colors.white,
+  //             ),
+  //           ),
+  //           if (routeData.containsKey(routeType))
+  //             Text(
+  //               routeData[routeType]!,
+  //               style: TextStyle(
+  //                 fontSize: 12,
+  //                 color: color == Colors.yellow ? Colors.black : Colors.white,
+  //               ),
+  //             ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
   @override
   Widget _buildRouteButton(int routeType, Color color) {
-    return Container(
-      width: double.infinity,
+    return SizedBox(
+      width: 60, // Set fixed width
+      height: 30, // Set fixed height
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: color == Colors.yellow ? Colors.black : Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.zero, // Remove extra padding
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4), // Small radius for rectangle
+          ),
         ),
         onPressed: () async {
           await _mapViewController.clearPolylines();
@@ -544,18 +708,20 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
           }
         },
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center, // Center align text
           children: [
-            Text(
-              'Route $routeType',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: color == Colors.yellow ? Colors.black : Colors.white,
-              ),
-            ),
+            // Text(
+            //   'Route $routeType',
+            //   style: TextStyle(
+            //     fontWeight: FontWeight.bold,
+            //     fontSize: 14, // Reduce font size if needed
+            //     color: color == Colors.yellow ? Colors.black : Colors.white,
+            //   ),
+            // ),
             if (routeData.containsKey(routeType))
               Text(
                 routeData[routeType]!,
+                textAlign: TextAlign.center, // Align text center
                 style: TextStyle(
                   fontSize: 12,
                   color: color == Colors.yellow ? Colors.black : Colors.white,
@@ -566,6 +732,8 @@ class _MapPageState extends ExamplePageState<BasicMapPage> {
       ),
     );
   }
+
+
 
   @override
   Widget buildOverlayContent(BuildContext context) {
